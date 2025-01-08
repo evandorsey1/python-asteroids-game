@@ -1,26 +1,46 @@
-# this allows us to use code from
-# the open-source pygame library
-# throughout this file
 import pygame
 from constants import *
 from player import Player
+from asteroid import * 
+from asteroidfield import *
 
 def main():
 	pygame.init()
 	screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-	
 	clock = pygame.time.Clock()
-	dt = 0
+
+	asteroids = pygame.sprite.Group()	
+	updatable = pygame.sprite.Group() 
+	drawable = pygame.sprite.Group()
+
+	Asteroid.containers = (asteroids, updatable, drawable)
+	AsteroidField.containers = updatable
+	asteroidfield = AsteroidField()
+
+	Player.containers = (updatable, drawable)
 	player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+	
+	dt = 0
 
 	while True:
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				return
+
+		# Update dt first		
+		for object in updatable:
+			object.update(dt)
+
+		# Fill screen
 		screen.fill((0, 0, 0))
-		player.draw(screen)
-		pygame.display.flip()
 		
+		# Draw screen
+		for object in drawable:
+			object.draw(screen)	
+		
+		# Update the full display Surface to the screen
+		pygame.display.flip()
+
 		# Limit the framerate to 60 FPS	
 		dt = clock.tick(60) / 1000
 		
